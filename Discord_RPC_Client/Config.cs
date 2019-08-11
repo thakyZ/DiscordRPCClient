@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json.Linq;
 using System.Windows.Forms;
+using System.Security.Permissions;
 
 namespace Discord_RPC_Client
 {
@@ -24,8 +25,8 @@ namespace Discord_RPC_Client
     {
       public string State;
       public string Details;
-      public int StartTimestamp;
-      public int EndTimestamp;
+      public ulong StartTimestamp;
+      public ulong EndTimestamp;
     };
 
     [JsonObject("Images")]
@@ -46,18 +47,19 @@ namespace Discord_RPC_Client
 
   public static class ConfigHandler
   {
+
     public static Config config = new Config()
     {
       Identifiers = new Config.identifiers()
       {
-        ClientID = -1
+        ClientID = ""
       },
       Information = new Config.information()
       {
         State = "",
         Details = "",
-        StartTimestamp = -1,
-        EndTimestamp = -1
+        StartTimestamp = 0,
+        EndTimestamp = 0
       },
       Images = new Config.images()
       {
@@ -135,6 +137,54 @@ namespace Discord_RPC_Client
           MessageBox.Show(ex.Message);
         }
       }
+    }
+  }
+
+  public class Watcher
+  {
+    public static void Initializer()
+    {
+      Run();
+    }
+
+    [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
+    private static void Run()
+    {
+      using (FileSystemWatcher watcher = new FileSystemWatcher())
+      {
+        watcher.Path = ConfigHandler.ConfigFolder;
+
+        // Watch for changes in LastAccess and LastWrite times, and
+        // the renaming of files or directories
+        watcher.NotifyFilter = NotifyFilters.LastAccess
+                             | NotifyFilters.LastWrite
+                             | NotifyFilters.FileName
+                             | NotifyFilters.DirectoryName;
+
+        // Only watch text files.
+        watcher.Filter = "config.json";
+
+        // Add event handlers.
+        watcher.Changed += OnChanged;
+        watcher.Deleted += OnMissing;
+        watcher.Renamed += OnMissing;
+
+        watcher.Error += (sender, e) =>
+        {
+          Console.WriteLine("FileSystemWatcher ran into an error with {0}", ConfigHandler.ConfigFile);
+          Console.WriteLine(e.GetException().Message);
+        };
+      }
+    }
+
+    private static void OnChanged(object source, FileSystemEventArgs e)
+    {
+      ConfigHandler.ReadConfig();
+    }
+
+    private static void OnMissing(object source, EventArgs e)
+    {
+      ConfigHandler.WriteConfig();
     }
   }
 }
