@@ -5,19 +5,33 @@ using System.Linq;
 using System.Text;
 using DiscordRPC;
 using DiscordRPC.Logging;
+using DiscordRPC.Message;
+using System.Windows.Forms;
 
 namespace Discord_RPC_Client
 {
   public class RPC
   {
     public DiscordRpcClient client;
+    public double UpdateProgress = 0;
+
 
     public void Initialize()
     {
-      // Create a discord client
-      client = new DiscordRpcClient(ConfigHandler.config.Identifiers.ClientID);
+      // Try to create the Discord RPC client and catch it if it fails.
+      try
+      {
+        client = new DiscordRpcClient(ConfigHandler.config.Identifiers.ClientID, autoEvents: false);
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine("Error when creating RPC client.");
+        Console.WriteLine(ex.Message);
+        return;
+      }
 
-      client.Logger = new ConsoleLogger() { Level = LogLevel.Warning };
+      client.Logger = new ConsoleLogger(LogLevel.Error, true);
+      client.Logger = new FileLogger(Environment.CurrentDirectory + @"\console.log", LogLevel.Error);
 
       client.OnReady += (sender, e) =>
       {
@@ -44,14 +58,54 @@ namespace Discord_RPC_Client
         Console.WriteLine("Connection Filed: {0} | {1}", e.TimeCreated, e.FailedPipe);
       };
 
+      System.Timers.Timer UpdateTimer = new System.Timers.Timer(150);
+      UpdateTimer.Elapsed += (sender, e) =>
+      {
+        if (UpdateProgress == 0)
+        {
+          Update();
+        }
+
+        UpdateProgress++;
+
+        if (UpdateProgress >= 150)
+        {
+          UpdateProgress = 0;
+        }
+
+        try
+        {
+          App.gui.Invoke(new MethodInvoker(() => { App.gui.UpdateProgressBar((int)UpdateProgress); }));
+        }
+        catch
+        {
+          return;
+        }
+      };
+      UpdateTimer.Start();
+
       client.Initialize();
 
       client.SetPresence(ConstructRichPresence());
     }
 
+    public void Update()
+    {
+      client.SetPresence(ConstructRichPresence());
+      client.Invoke();
+    }
+
     public void Deinitialize()
     {
-      client.Dispose();
+      try
+      {
+        client.Dispose();
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine("Error: Error when disposing of RPC client.");
+        Console.WriteLine(ex.Message);
+      }
     }
 
     private RichPresence ConstructRichPresence()

@@ -1,0 +1,17 @@
+{
+  "Identifiers": {
+    "Client_ID": ""
+  },
+  "Information": {
+    "State": "",
+    "Details": "",
+    "Start_Timestamp": 0,
+    "End_Timestamp": 0
+  },
+  "Images": {
+    "Large_Image": "",
+    "Large_Image_Tooltip": "",
+    "Small_Image": "",
+    "Small_Image_Tooltip": ""
+  }
+}

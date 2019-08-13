@@ -14,62 +14,49 @@ namespace Discord_RPC_Client
   [Serializable]
   public class Config
   {
-    [JsonObject("Information")]
-    public struct identifiers
+    public class identifiers
     {
-      public string ClientID;
+      [JsonProperty(Order = 1, PropertyName = "Client_ID")]
+      public string ClientID = "";
     };
 
-    [JsonObject("Identifiers")]
-    public struct information
+    public class information
     {
-      public string State;
-      public string Details;
-      public ulong StartTimestamp;
-      public ulong EndTimestamp;
+      [JsonProperty(Order = 1, PropertyName = "Details")]
+      public string Details = "";
+      [JsonProperty(Order = 2, PropertyName = "State")]
+      public string State = "";
+      [JsonProperty(Order = 3, PropertyName = "Start_Timestamp")]
+      public ulong StartTimestamp = 0;
+      [JsonProperty(Order = 4, PropertyName = "End_Timestamp")]
+      public ulong EndTimestamp = 0;
     };
 
-    [JsonObject("Images")]
-    public struct images
+    public class images
     {
-      public string LargeImage;
-      public string LargeImageTooltip;
-      public string SmallImage;
-      public string SmallImageTooltip;
+      [JsonProperty(Order = 1, PropertyName = "Large_Image")]
+      public string LargeImage = "";
+      [JsonProperty(Order = 2, PropertyName = "Large_Image_Tooltip")]
+      public string LargeImageTooltip = "";
+      [JsonProperty(Order = 3, PropertyName = "Small_Image")]
+      public string SmallImage = "";
+      [JsonProperty(Order = 4, PropertyName = "Small_Image_Tooltip")]
+      public string SmallImageTooltip = "";
     };
 
-    public identifiers Identifiers;
+    [JsonProperty(Order = 1, PropertyName = "Identifiers")]
+    public identifiers Identifiers = new identifiers();
 
-    public information Information;
+    [JsonProperty(Order = 2, PropertyName = "Information")]
+    public information Information = new information();
 
-    public images Images;
+    [JsonProperty(Order = 3, PropertyName = "Images")]
+    public images Images = new images();
   }
 
   public static class ConfigHandler
   {
-
-    public static Config config = new Config()
-    {
-      Identifiers = new Config.identifiers()
-      {
-        ClientID = ""
-      },
-      Information = new Config.information()
-      {
-        State = "",
-        Details = "",
-        StartTimestamp = 0,
-        EndTimestamp = 0
-      },
-      Images = new Config.images()
-      {
-        LargeImage = "",
-        LargeImageTooltip = "",
-        SmallImage = "",
-        SmallImageTooltip = ""
-      }
-    };
-
+    public static Config config = new Config();
     public static string ConfigFolder => Directory.GetCurrentDirectory() + "/config";
     public static string ConfigFile => ConfigFolder + "/config.json";
 
@@ -138,14 +125,21 @@ namespace Discord_RPC_Client
         }
       }
     }
+
+    public static void SetValue(ref string configVariable, string value)
+    {
+      configVariable = value;
+    }
+
+    public static void SetValue(ref ulong configVariable, ulong value)
+    {
+      configVariable = value;
+    }
   }
 
   public class Watcher
   {
-    public static void Initializer()
-    {
-      Run();
-    }
+    public static void Initializer() => Run();
 
     [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
     private static void Run()

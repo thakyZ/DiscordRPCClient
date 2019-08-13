@@ -6,34 +6,25 @@ using System.Text;
 
 namespace Discord_RPC_Client
 {
-  public class Logger
+  public abstract class LogBase
   {
-    FileStream ostrm;
-    StreamWriter writer;
-    TextWriter oldOut = Console.Out;
+    public abstract void Log(string message);
+  }
 
-    public Logger()
+  public class Logger : LogBase
+  {
+    public string filePath = Environment.CurrentDirectory + @"\console.log";
+
+    private StreamWriter streamWriter;
+
+    public override void Log(string message)
     {
-      try
+      using (streamWriter = new StreamWriter(filePath))
       {
-        ostrm = new FileStream(Environment.CurrentDirectory + "/console.log", FileMode.OpenOrCreate, FileAccess.Write);
-        writer = new StreamWriter(ostrm);
+        streamWriter.WriteLine(message);
+        Console.WriteLine(message);
+        streamWriter.Close();
       }
-      catch (Exception e)
-      {
-        Console.WriteLine("Cannot open console.log for writing");
-        Console.WriteLine(e.Message);
-        return;
-      }
-
-      Console.SetOut(writer);
-    }
-
-    public void CloseLogger()
-    {
-      writer.Close();
-      ostrm.Close();
-      Console.WriteLine("Done");
     }
   }
 }
