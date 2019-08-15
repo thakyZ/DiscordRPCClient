@@ -12,16 +12,49 @@ namespace Discord_RPC_Client
 {
   public class RPC
   {
+    /// <summary>
+    /// The <see cref="Timer"/> to set toward the <see cref="GUI.update_ProgressBar"/> on the <see cref="GUI"/>.
+    /// </summary>
+    System.Timers.Timer UpdateTimer;
+
+    /// <summary>
+    /// The <see cref="DiscordRpcClient"/> variable.
+    /// </summary>
     public DiscordRpcClient client;
+
+    /// <summary>
+    /// The progress value of the <see cref="UpdateTimer"/>.
+    /// </summary>
     public double UpdateProgress = 0;
 
+    /// <summary>
+    /// Creates the <see cref="DiscordRpcClient"/> if it hasn't been created already.
+    /// </summary>
+    public void CreateRPCClient()
+    {
+      try
+      {
+        client = new DiscordRpcClient(ConfigHandler.config.GetIdentifiers().ClientID, autoEvents: false);
+        Initialize();
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine("Error when creating RPC client.");
+        Console.WriteLine(ex.Message);
+        return;
+      }
+    }
 
-    public void Initialize()
+    /// <summary>
+    /// Initializes the <see cref="DiscordRpcClient"/>. Must be called separately.
+    /// </summary>
+    /// <param name="logFilePath">The path to the log file.</param>
+    public void Initialize(string logFilePath)
     {
       // Try to create the Discord RPC client and catch it if it fails.
       try
       {
-        client = new DiscordRpcClient(ConfigHandler.config.Identifiers.ClientID, autoEvents: false);
+        client = new DiscordRpcClient(ConfigHandler.config.GetIdentifiers().ClientID, autoEvents: false);
       }
       catch (Exception ex)
       {
@@ -30,8 +63,42 @@ namespace Discord_RPC_Client
         return;
       }
 
+      // Clear file if it doesn't exist already.
+      System.IO.File.WriteAllBytes(logFilePath, new byte[0]);
+      // Set the RPC client to log to RPC log file.
+      client.Logger = new FileLogger(logFilePath, LogLevel.Error);
+
+      SetupClient();
+    }
+
+    /// <summary>
+    /// Initializes the <see cref="DiscordRpcClient"/> class. Must be called separately.
+    /// </summary>
+    public void Initialize()
+    {
+      // Try to create the Discord RPC client and catch it if it fails.
+      try
+      {
+        client = new DiscordRpcClient(ConfigHandler.config.GetIdentifiers().ClientID, autoEvents: false);
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine("Error when creating RPC client.");
+        Console.WriteLine(ex.Message);
+        return;
+      }
+
+      // Log only to console.
       client.Logger = new ConsoleLogger(LogLevel.Error, true);
-      client.Logger = new FileLogger(Environment.CurrentDirectory + @"\console.log", LogLevel.Error);
+
+      SetupClient();
+    }
+
+    /// <summary>
+    /// Setup the <see cref="DiscordRpcClient"/> (used to shorten the length of Initialize and keep everything constant).
+    /// </summary>
+    private void SetupClient()
+    {
 
       client.OnReady += (sender, e) =>
       {
@@ -58,7 +125,7 @@ namespace Discord_RPC_Client
         Console.WriteLine("Connection Filed: {0} | {1}", e.TimeCreated, e.FailedPipe);
       };
 
-      System.Timers.Timer UpdateTimer = new System.Timers.Timer(150);
+      UpdateTimer = new System.Timers.Timer(150);
       UpdateTimer.Elapsed += (sender, e) =>
       {
         if (UpdateProgress == 0)
@@ -89,14 +156,21 @@ namespace Discord_RPC_Client
       client.SetPresence(ConstructRichPresence());
     }
 
+    /// <summary>
+    /// Invokes the <see cref="DiscordRpcClient"/>, and updates the data.
+    /// </summary>
     public void Update()
     {
       client.SetPresence(ConstructRichPresence());
       client.Invoke();
     }
 
+    /// <summary>
+    /// De-initializes the <see cref="DiscordRpcClient"/>.
+    /// </summary>
     public void Deinitialize()
     {
+      // Try to dispose the RPC client.
       try
       {
         client.Dispose();
@@ -108,61 +182,34 @@ namespace Discord_RPC_Client
       }
     }
 
+    /// <summary>
+    /// Constructs a <see cref="RichPresence"/> from <see cref="Config"/> and <see cref="ConfigHandler"/> data.
+    /// </summary>
+    /// <returns>The constructed <see cref="RichPresence"/> class.</returns>
     private RichPresence ConstructRichPresence()
     {
-      RichPresence richPresence = new RichPresence();
-
-      richPresence.Assets = new Assets();
-
-      if (ConfigHandler.config.Information.Details != "")
+      // Construct the temporary RichPresence 
+      RichPresence richPresence = new RichPresence
       {
-        richPresence.Details = ConfigHandler.config.Information.Details;
-      }
-      else { richPresence.Details = ""; }
-
-      if (ConfigHandler.config.Information.State != "")
-      {
-        richPresence.State = ConfigHandler.config.Information.State;
-      }
-      else { richPresence.State = ""; }
-
-      Timestamps timestamps = new Timestamps();
-
-      if (ConfigHandler.config.Information.StartTimestamp != 0)
-      {
-        timestamps.StartUnixMilliseconds = ConfigHandler.config.Information.StartTimestamp;
-
-        if (ConfigHandler.config.Information.EndTimestamp != 0 && ConfigHandler.config.Information.EndTimestamp > ConfigHandler.config.Information.StartTimestamp)
+        // Set Details
+        Details = ConfigHandler.config.GetInformation().Details,
+        // Set State
+        State = ConfigHandler.config.GetInformation().State,
+        // Initialize the Timestamps class
+        Timestamps = ConfigHandler.config.GetInformation().StartTimestamp > 0 ? new Timestamps()
         {
-          timestamps.EndUnixMilliseconds = ConfigHandler.config.Information.EndTimestamp;
+          StartUnixMilliseconds = ConfigHandler.config.GetInformation().StartTimestamp,
+          EndUnixMilliseconds = ConfigHandler.config.GetInformation().StartTimestamp > 0 ? ConfigHandler.config.GetInformation().EndTimestamp : ulong.MinValue
+        } : null,
+        // Initialize the Assets class
+        Assets = new Assets()
+        {
+          LargeImageKey = ConfigHandler.config.GetImages().LargeImage,
+          LargeImageText = ConfigHandler.config.GetImages().LargeImageTooltip,
+          SmallImageKey = ConfigHandler.config.GetImages().SmallImage,
+          SmallImageText = ConfigHandler.config.GetImages().SmallImageTooltip
         }
-
-        richPresence.Timestamps = timestamps;
-      }
-
-      if (ConfigHandler.config.Images.LargeImage != "")
-      {
-        richPresence.Assets.LargeImageKey = ConfigHandler.config.Images.LargeImage;
-      }
-      else { richPresence.Assets.LargeImageKey = ""; }
-
-      if (ConfigHandler.config.Images.LargeImageTooltip != "")
-      {
-        richPresence.Assets.LargeImageText = ConfigHandler.config.Images.LargeImageTooltip;
-      }
-      else { richPresence.Assets.LargeImageText = ""; }
-
-      if (ConfigHandler.config.Images.SmallImage != "")
-      {
-        richPresence.Assets.SmallImageKey = ConfigHandler.config.Images.SmallImage;
-      }
-      else { richPresence.Assets.SmallImageKey = ""; }
-
-      if (ConfigHandler.config.Images.SmallImageTooltip != "")
-      {
-        richPresence.Assets.SmallImageText = ConfigHandler.config.Images.SmallImageTooltip;
-      }
-      else { richPresence.Assets.SmallImageText = ""; }
+      };
 
       return richPresence;
     }

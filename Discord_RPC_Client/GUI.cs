@@ -1,289 +1,452 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Windows.Forms;
-using System.Threading.Tasks;
 
 namespace Discord_RPC_Client
 {
   public class GUI : Form
   {
+    /// <summary>
+    /// A <see cref="bool"/> for whether or not to close the <see cref="GUI"/>.
+    /// </summary>
     public bool exit = false;
 
+    /// <summary>
+    /// The <see cref="Label"/> for the <see cref="Config.Identifiers.ClientID"/> <see cref="TextBox"/>.
+    /// </summary>
     public Label clientID_Label;
+    /// <summary>
+    /// The <see cref="TextBox"/> for the <see cref="Config.Identifiers.ClientID"/> value.
+    /// </summary>
     public TextBox clientID_TextBox;
 
+    /// <summary>
+    /// The <see cref="Label"/> for the <see cref="Config.Information.Details"/> <see cref="TextBox"/>.
+    /// </summary>
     public Label details_Label;
+    /// <summary>
+    /// The <see cref="TextBox"/> for the <see cref="Config.Information.Details"/> value.
+    /// </summary>
     public TextBox details_TextBox;
 
+    /// <summary>
+    /// The <see cref="Label"/> for the <see cref="Config.Information.State"/> <see cref="TextBox"/>.
+    /// </summary>
     public Label state_Label;
+    /// <summary>
+    /// The <see cref="TextBox"/> for the <see cref="Config.Information.State"/> value.
+    /// </summary>
     public TextBox state_TextBox;
 
+    /// <summary>
+    /// The <see cref="Label"/> for the <see cref="Config.Information.StartTimestamp"/> <see cref="TextBox"/>.
+    /// </summary>
     public Label startTimestamp_Label;
+    /// <summary>
+    /// The <see cref="TextBox"/> for the <see cref="Config.Information.StartTimestamp"/> value.
+    /// </summary>
     public TextBox startTimestamp_TextBox;
 
+    /// <summary>
+    /// The <see cref="Label"/> for the <see cref="Config.Information.EndTimestamp"/> <see cref="TextBox"/>.
+    /// </summary>
     public Label endTimestamp_Label;
+    /// <summary>
+    /// The <see cref="TextBox"/> for the <see cref="Config.Information.EndTimestamp"/> value.
+    /// </summary>
     public TextBox endTimestamp_TextBox;
 
+    /// <summary>
+    /// The <see cref="Label"/> for the <see cref="Config.Images.LargeImage"/> <see cref="TextBox"/>.
+    /// </summary>
     public Label largeImage_Label;
+    /// <summary>
+    /// The <see cref="TextBox"/> for the <see cref="Config.Images.LargeImage"/> value.
+    /// </summary>
     public TextBox largeImage_TextBox;
 
+    /// <summary>
+    /// The <see cref="Label"/> for the <see cref="Config.Images.LargeImageTooltip"/> <see cref="TextBox"/>.
+    /// </summary>
     public Label largeImageTooltip_Label;
+    /// <summary>
+    /// The <see cref="TextBox"/> for the <see cref="Config.Images.LargeImageTooltip"/> value.
+    /// </summary>
     public TextBox largeImageTooltip_TextBox;
 
+    /// <summary>
+    /// The <see cref="Label"/> for the <see cref="Config.Images.SmallImage"/> <see cref="TextBox"/>.
+    /// </summary>
     public Label smallImage_Label;
+    /// <summary>
+    /// The <see cref="TextBox"/> for the <see cref="Config.Images.SmallImage"/> value.
+    /// </summary>
     public TextBox smallImage_TextBox;
 
+    /// <summary>
+    /// The <see cref="Label"/> for the <see cref="Config.Images.SmallImageTooltip"/> <see cref="TextBox"/>.
+    /// </summary>
     public Label smallImageTooltip_Label;
+    /// <summary>
+    /// The <see cref="TextBox"/> for the <see cref="Config.Images.SmallImageTooltip"/> value.
+    /// </summary>
     public TextBox smallImageTooltip_TextBox;
 
+    /// <summary>
+    /// The <see cref="Label"/> for the <see cref="RPC.UpdateProgress"/> <see cref="ProgressBar"/>.
+    /// </summary>
     public Label update_Label;
+    /// <summary>
+    /// The <see cref="ProgressBar"/> for the <see cref="RPC.UpdateProgress"/> value.
+    /// </summary>
     public ProgressBar update_ProgressBar;
 
+    /// <summary>
+    /// The <see cref="Button"/> for forcing an <see cref="RPC.client"/> update.
+    /// </summary>
     public Button forceUpdate_Button;
+    /// <summary>
+    /// The <see cref="Button"/> for forcing the <see cref="ConfigHandler"/> to save the <see cref="Config"/> to file.
+    /// </summary>
     public Button saveConfig_Button;
+    /// <summary>
+    /// The <see cref="Button"/> for forcing the <see cref="ConfigHandler"/> to load the <see cref="Config"/> from file.
+    /// </summary>
     public Button loadConfig_Button;
+    /// <summary>
+    /// The <see cref="Button"/> for telling the <see cref="GUI"/> to exit.
+    /// </summary>
     public Button exit_Button;
 
+    /// <summary>
+    /// The initializer for the <see cref="GUI"/> class.
+    /// </summary>
     public GUI()
     {
-      //*** Set the controls of the form itself.
+      // Set the controls of the Form itself.
       Size = new Size(420, 500);
-      ResizeRedraw = false;
+      // Make it so that the Form cannot be resized.
       MaximizeBox = false;
       FormBorderStyle = FormBorderStyle.FixedSingle;
+      // Handle this if the form closes.
       FormClosing += (source, e) =>
       {
         if (! exit)
         {
+          // What ever you do, at the end of this method do not set Cancel to false because it'll bug the F out.
           e.Cancel = true;
+          // Hide the GUI since we don't really need to close it (also since we cannot set the 'gui' variable in the App class to null).
           Hide();
         }
-        e.Cancel = false;
       };
 
-      //**  Set the controls of the input groups
+      //  Set the controls of the input groups
       #region clientID Data
-      clientID_Label = new Label();
-      clientID_Label.Text = "Client ID:";
-      clientID_Label.Location = new Point(5, 5);
-      clientID_Label.AutoSize = true;
+      clientID_Label = new Label
+      {
+        Text = "Client ID:",
+        Location = new Point(5, 5),
+        AutoSize = true
+      };
       Controls.Add(clientID_Label);
       // ========================================
-      clientID_TextBox = new TextBox();
-      clientID_TextBox.Text = ConfigHandler.config.Identifiers.ClientID ?? "";
-      clientID_TextBox.Location = new Point(5, 25);
-      clientID_TextBox.Size = new Size(120, 15);
-      clientID_TextBox.MaxLength = 18;
-      clientID_TextBox.TextChanged += new EventHandler(clientID_TextBox_TextChanged);
+      clientID_TextBox = new TextBox
+      {
+        Text = ConfigHandler.config.GetIdentifiers().ClientID ?? "",
+        Location = new Point(5, 25),
+        Size = new Size(120, 15),
+        MaxLength = 18
+      };
+      clientID_TextBox.TextChanged += new EventHandler(ClientID_TextBox_TextChanged);
       Controls.Add(clientID_TextBox);
       #endregion
       #region status Data
-      state_Label = new Label();
-      state_Label.Text = "State:";
-      state_Label.Location = new Point(5, 95);
-      state_Label.AutoSize = true;
+      state_Label = new Label
+      {
+        Text = "State:",
+        Location = new Point(5, 95),
+        AutoSize = true
+      };
       Controls.Add(state_Label);
       // ========================================
-      state_TextBox = new TextBox();
-      state_TextBox.Text = ConfigHandler.config.Information.State ?? "";
-      state_TextBox.Location = new Point(5, 115);
-      state_TextBox.Size = new Size(395, 15);
-      state_TextBox.TextChanged += new EventHandler(state_TextBox_TextChanged);
+      state_TextBox = new TextBox
+      {
+        Text = ConfigHandler.config.GetInformation().State ?? "",
+        Location = new Point(5, 115),
+        Size = new Size(395, 15)
+      };
+      state_TextBox.TextChanged += new EventHandler(State_TextBox_TextChanged);
       Controls.Add(state_TextBox);
       #endregion
       #region details Data
-      details_Label = new Label();
-      details_Label.Text = "Details:";
-      details_Label.Location = new Point(5, 50);
-      details_Label.AutoSize = true;
+      details_Label = new Label
+      {
+        Text = "Details:",
+        Location = new Point(5, 50),
+        AutoSize = true
+      };
       Controls.Add(details_Label);
       // ========================================
-      details_TextBox = new TextBox();
-      details_TextBox.Text = ConfigHandler.config.Information.Details ?? "";
-      details_TextBox.Location = new Point(5, 70);
-      details_TextBox.Size = new Size(395, 15);
-      details_TextBox.TextChanged += new EventHandler(details_TextBox_TextChanged);
+      details_TextBox = new TextBox
+      {
+        Text = ConfigHandler.config.GetInformation().Details ?? "",
+        Location = new Point(5, 70),
+        Size = new Size(395, 15)
+      };
+      details_TextBox.TextChanged += new EventHandler(Details_TextBox_TextChanged);
       Controls.Add(details_TextBox);
       #endregion
       #region startTimestamp Data
-      startTimestamp_Label = new Label();
-      startTimestamp_Label.Text = "Start Timestamp:";
-      startTimestamp_Label.Location = new Point(5, 140);
-      startTimestamp_Label.AutoSize = true;
+      startTimestamp_Label = new Label
+      {
+        Text = "Start Timestamp:",
+        Location = new Point(5, 140),
+        AutoSize = true
+      };
       Controls.Add(startTimestamp_Label);
       // ========================================
-      startTimestamp_TextBox = new TextBox();
-      startTimestamp_TextBox.Text = ConfigHandler.config.Information.StartTimestamp.ToString() ?? "0";
-      startTimestamp_TextBox.Location = new Point(5, 160);
-      startTimestamp_TextBox.Size = new Size(120, 15);
-      startTimestamp_TextBox.MaxLength = 18;
-      startTimestamp_TextBox.TextChanged += new EventHandler(startTimestamp_TextBox_TextChanged);
+      startTimestamp_TextBox = new TextBox
+      {
+        Text = ConfigHandler.config.GetInformation().StartTimestamp.ToString() ?? "0",
+        Location = new Point(5, 160),
+        Size = new Size(120, 15),
+        MaxLength = 18
+      };
+      startTimestamp_TextBox.TextChanged += new EventHandler(StartTimestamp_TextBox_TextChanged);
       Controls.Add(startTimestamp_TextBox);
       #endregion
       #region endTimestamp Data
-      endTimestamp_Label = new Label();
-      endTimestamp_Label.Text = "End Timestamp:";
-      endTimestamp_Label.Location = new Point(130, 140);
-      endTimestamp_Label.AutoSize = true;
+      endTimestamp_Label = new Label
+      {
+        Text = "End Timestamp:",
+        Location = new Point(130, 140),
+        AutoSize = true
+      };
       Controls.Add(endTimestamp_Label);
       // ========================================
-      endTimestamp_TextBox = new TextBox();
-      endTimestamp_TextBox.Text = ConfigHandler.config.Information.EndTimestamp.ToString() ?? "0";
-      endTimestamp_TextBox.Location = new Point(130, 160);
-      endTimestamp_TextBox.Size = new Size(120, 15);
-      endTimestamp_TextBox.MaxLength = 18;
-      endTimestamp_TextBox.TextChanged += new EventHandler(endTimestamp_TextBox_TextChanged);
+      endTimestamp_TextBox = new TextBox
+      {
+        Text = ConfigHandler.config.GetInformation().EndTimestamp.ToString() ?? "0",
+        Location = new Point(130, 160),
+        Size = new Size(120, 15),
+        MaxLength = 18
+      };
+      endTimestamp_TextBox.TextChanged += new EventHandler(EndTimestamp_TextBox_TextChanged);
       Controls.Add(endTimestamp_TextBox);
       #endregion
       #region largeImage Data
-      largeImage_Label = new Label();
-      largeImage_Label.Text = "Large Image Key:";
-      largeImage_Label.Location = new Point(5, 185);
-      largeImage_Label.AutoSize = true;
+      largeImage_Label = new Label
+      {
+        Text = "Large Image Key:",
+        Location = new Point(5, 185),
+        AutoSize = true
+      };
       Controls.Add(largeImage_Label);
       // ========================================
-      largeImage_TextBox = new TextBox();
-      largeImage_TextBox.Text = ConfigHandler.config.Images.LargeImage ?? "";
-      largeImage_TextBox.Location = new Point(5, 205);
-      largeImage_TextBox.Size = new Size(395, 15);
-      largeImage_TextBox.TextChanged += new EventHandler(largeImage_TextBox_TextChanged);
+      largeImage_TextBox = new TextBox
+      {
+        Text = ConfigHandler.config.GetImages().LargeImage ?? "",
+        Location = new Point(5, 205),
+        Size = new Size(395, 15)
+      };
+      largeImage_TextBox.TextChanged += new EventHandler(LargeImage_TextBox_TextChanged);
       Controls.Add(largeImage_TextBox);
       #endregion
       #region largeImageTooltip Data
-      largeImageTooltip_Label = new Label();
-      largeImageTooltip_Label.Text = "Large Image Tooltip:";
-      largeImageTooltip_Label.Location = new Point(5, 230);
-      largeImageTooltip_Label.AutoSize = true;
+      largeImageTooltip_Label = new Label
+      {
+        Text = "Large Image Tooltip:",
+        Location = new Point(5, 230),
+        AutoSize = true
+      };
       Controls.Add(largeImageTooltip_Label);
       // ========================================
-      largeImageTooltip_TextBox = new TextBox();
-      largeImageTooltip_TextBox.Text = ConfigHandler.config.Images.LargeImageTooltip ?? "";
-      largeImageTooltip_TextBox.Location = new Point(5, 250);
-      largeImageTooltip_TextBox.Size = new Size(395, 15);
-      largeImageTooltip_TextBox.TextChanged += new EventHandler(smallImageTooltip_TextBox_TextChanged);
+      largeImageTooltip_TextBox = new TextBox
+      {
+        Text = ConfigHandler.config.GetImages().LargeImageTooltip ?? "",
+        Location = new Point(5, 250),
+        Size = new Size(395, 15)
+      };
+      largeImageTooltip_TextBox.TextChanged += new EventHandler(SmallImageTooltip_TextBox_TextChanged);
       Controls.Add(largeImageTooltip_TextBox);
       #endregion
       #region largeImage Data
-      smallImage_Label = new Label();
-      smallImage_Label.Text = "Small Image Key:";
-      smallImage_Label.Location = new Point(5, 275);
-      smallImage_Label.AutoSize = true;
+      smallImage_Label = new Label
+      {
+        Text = "Small Image Key:",
+        Location = new Point(5, 275),
+        AutoSize = true
+      };
       Controls.Add(smallImage_Label);
       // ========================================
-      smallImage_TextBox = new TextBox();
-      smallImage_TextBox.Text = ConfigHandler.config.Images.SmallImage ?? "";
-      smallImage_TextBox.Location = new Point(5, 295);
-      smallImage_TextBox.Size = new Size(395, 15);
-      smallImage_TextBox.TextChanged += new EventHandler(smallImage_TextBox_TextChanged);
+      smallImage_TextBox = new TextBox
+      {
+        Text = ConfigHandler.config.GetImages().SmallImage ?? "",
+        Location = new Point(5, 295),
+        Size = new Size(395, 15)
+      };
+      smallImage_TextBox.TextChanged += new EventHandler(SmallImage_TextBox_TextChanged);
       Controls.Add(smallImage_TextBox);
       #endregion
       #region smallImageTooltip Data
-      smallImageTooltip_Label = new Label();
-      smallImageTooltip_Label.Text = "Small Image Tooltip:";
-      smallImageTooltip_Label.Location = new Point(5, 320);
-      smallImageTooltip_Label.AutoSize = true;
+      smallImageTooltip_Label = new Label
+      {
+        Text = "Small Image Tooltip:",
+        Location = new Point(5, 320),
+        AutoSize = true
+      };
       Controls.Add(smallImageTooltip_Label);
       // ========================================
-      smallImageTooltip_TextBox = new TextBox();
-      smallImageTooltip_TextBox.Text = ConfigHandler.config.Images.SmallImageTooltip ?? "";
-      smallImageTooltip_TextBox.Location = new Point(5, 340);
-      smallImageTooltip_TextBox.Size = new Size(395, 15);
-      smallImageTooltip_TextBox.TextChanged += new EventHandler(smallImageTooltip_TextBox_TextChanged);
+      smallImageTooltip_TextBox = new TextBox
+      {
+        Text = ConfigHandler.config.GetImages().SmallImageTooltip ?? "",
+        Location = new Point(5, 340),
+        Size = new Size(395, 15)
+      };
+      smallImageTooltip_TextBox.TextChanged += new EventHandler(SmallImageTooltip_TextBox_TextChanged);
       Controls.Add(smallImageTooltip_TextBox);
       #endregion
       #region update Data
-      update_Label = new Label();
-      update_Label.Text = "Update Ticker:";
-      update_Label.Location = new Point(5, 365);
-      update_Label.AutoSize = true;
+      update_Label = new Label
+      {
+        Text = "Update Ticker:",
+        Location = new Point(5, 365),
+        AutoSize = true
+      };
       Controls.Add(update_Label);
       // ========================================
-      update_ProgressBar = new ProgressBar();
-      update_ProgressBar.Maximum = 150;
-      update_ProgressBar.Location = new Point(5, 385);
-      update_ProgressBar.Size = new Size(395, 15);
+      update_ProgressBar = new ProgressBar
+      {
+        Maximum = 150,
+        Location = new Point(5, 385),
+        Size = new Size(395, 15)
+      };
       Controls.Add(update_ProgressBar);
       #endregion
       #region button Data
-      forceUpdate_Button = new Button();
-      forceUpdate_Button.Text = "Force Update";
-      forceUpdate_Button.Location = new Point(5, 410);
-      forceUpdate_Button.AutoSize = true;
-      forceUpdate_Button.Click += new EventHandler(forceUpdate_Button_Click);
+      forceUpdate_Button = new Button
+      {
+        Text = "Force Update",
+        Location = new Point(5, 410),
+        AutoSize = true
+      };
+      forceUpdate_Button.Click += new EventHandler(ForceUpdate_Button_Click);
       Controls.Add(forceUpdate_Button);
       // ========================================
-      saveConfig_Button = new Button();
-      saveConfig_Button.Text = "Save Config";
-      saveConfig_Button.Location = new Point(forceUpdate_Button.Location.X + forceUpdate_Button.Size.Width + 5, 410);
-      saveConfig_Button.AutoSize = true;
-      saveConfig_Button.Click += new EventHandler(saveConfig_Button_Click);
+      saveConfig_Button = new Button
+      {
+        Text = "Save Config",
+        Location = new Point(forceUpdate_Button.Location.X + forceUpdate_Button.Size.Width + 5, 410),
+        AutoSize = true
+      };
+      saveConfig_Button.Click += new EventHandler(SaveConfig_Button_Click);
       Controls.Add(saveConfig_Button);
       // ========================================
-      loadConfig_Button = new Button();
-      loadConfig_Button.Text = "Load Config";
-      loadConfig_Button.Location = new Point(saveConfig_Button.Location.X + saveConfig_Button.Size.Width + 5, 410);
-      loadConfig_Button.AutoSize = true;
-      loadConfig_Button.Click += new EventHandler(loadConfig_Button_Click);
+      loadConfig_Button = new Button
+      {
+        Text = "Load Config",
+        Location = new Point(saveConfig_Button.Location.X + saveConfig_Button.Size.Width + 5, 410),
+        AutoSize = true
+      };
+      loadConfig_Button.Click += new EventHandler(LoadConfig_Button_Click);
       Controls.Add(loadConfig_Button);
       // ========================================
-      exit_Button = new Button();
-      exit_Button.Text = "Exit";
-      exit_Button.Location = new Point(395 - exit_Button.Size.Width - 5, 410);
-      exit_Button.AutoSize = true;
-      exit_Button.Click += new EventHandler(exit_Button_Click);
+      exit_Button = new Button
+      {
+        Text = "Exit",
+        Anchor = AnchorStyles.Right,
+        Location = new Point(395, 410),
+        AutoSize = true
+      };
+      exit_Button.Click += new EventHandler(Exit_Button_Click);
       Controls.Add(exit_Button);
       #endregion
     }
+    
+    /// <summary>
+    /// Update the progress bar from outside the thread because it's hard to set it otherwise.
+    /// </summary>
+    /// <param name="value">The value to set the progress to (Typically set by a double, but can cast it to an int).</param>
+    public void UpdateProgressBar(int value) => update_ProgressBar.Value = value;
 
-    public void UpdateProgressBar(int value)
-    {
-      update_ProgressBar.Value = value;
-    }
-
-    private void clientID_TextBox_TextChanged(object sender, EventArgs e)
+    /// <summary>
+    /// Check when the <see cref="clientID_TextBox"/> text changed.
+    /// Makes sure all text in the <see cref="TextBox"/> are digits.
+    /// Also sets the <see cref="Config.Identifiers.ClientID"/> value.
+    /// And recreates the <see cref="RPC"/> client.
+    /// </summary>
+    /// <param name="sender">The sending object (Typically a <see cref="TextBox"/>).</param>
+    /// <param name="e">The event arguments.</param>
+    private void ClientID_TextBox_TextChanged(object sender, EventArgs e)
     {
       TextBox tb = sender as TextBox;
       if (!tb.Text.All(char.IsDigit))
       {
-        int carretPos = tb.SelectionStart;
+        // Get the caret position and set it after we concat. (Yes I know it bugs out when selecting, but using Windows forms doesn't work that well).
+        int caretPos = tb.SelectionStart;
         tb.Text = string.Concat(tb.Text.Where(char.IsDigit));
-        tb.SelectionStart = carretPos - 1;
+        tb.SelectionStart = caretPos - 1;
         return;
       }
       else
       {
+        // So if all the characters are Digits then set the config value.
         Invoke((MethodInvoker)delegate
         {
-          ConfigHandler.SetValue(ref ConfigHandler.config.Identifiers.ClientID, clientID_TextBox.Text);
+          ConfigHandler.SetValue(ref ConfigHandler.config.GetIdentifiers().ClientID, clientID_TextBox.Text);
+
+          // // We don't really need this because the program seems to bug out when the RPC client gets De-initialized... I wonder why... (Jk)
+          // try
+          // {
+          //   App.rpc.Deinitialize();
+          //}
+          //catch
+          //{
+          //  App.logger.Log("RPC Client already de-initialized.");
+          //}
+
+          // Just go ahead and recreate the RPC client.
+          App.rpc.CreateRPCClient();
         });
       }
     }
 
-    private void details_TextBox_TextChanged(object sender, EventArgs e)
+    /// <summary>
+    /// Get if the <see cref="details_TextBox"/> changed.
+    /// Doesn't do anything special other than set the <see cref="Config.Information.Details"/> value.
+    /// </summary>
+    /// <param name="sender">The sending object (Typically a <see cref="TextBox"/>).</param>
+    /// <param name="e">The event arguments.</param>
+    private void Details_TextBox_TextChanged(object sender, EventArgs e) => Invoke((MethodInvoker)delegate
     {
-      Invoke((MethodInvoker)delegate
-      {
-        ConfigHandler.SetValue(ref ConfigHandler.config.Information.Details, details_TextBox.Text);
-      });
-    }
-    private void state_TextBox_TextChanged(object sender, EventArgs e)
-    {
-      Invoke((MethodInvoker)delegate
-      {
-        ConfigHandler.SetValue(ref ConfigHandler.config.Information.State, state_TextBox.Text);
-      });
-    }
+      ConfigHandler.SetValue(ref ConfigHandler.config.GetInformation().Details, details_TextBox.Text);
+    });
 
-    private void startTimestamp_TextBox_TextChanged(object sender, EventArgs e)
+    /// <summary>
+    /// Get if the <see cref="state_TextBox"/> changed.
+    /// Doesn't do anything special other than set the <see cref="Config.Information.State"/> value.
+    /// </summary>
+    /// <param name="sender">The sending object (Typically a <see cref="TextBox"/>).</param>
+    /// <param name="e">The event arguments.</param>
+    private void State_TextBox_TextChanged(object sender, EventArgs e) => Invoke((MethodInvoker)delegate
+    {
+      ConfigHandler.SetValue(ref ConfigHandler.config.GetInformation().State, state_TextBox.Text);
+    });
+
+    /// <summary>
+    /// Get if the <see cref="startTimestamp_TextBox"/> changed.
+    /// Makes sure all text in the <see cref="TextBox"/> are digits.
+    /// Also sets the <see cref="Config.Information.StartTimestamp"/> value.
+    /// </summary>
+    /// <param name="sender">The sending object (Typically a <see cref="TextBox"/>).</param>
+    /// <param name="e">The event arguments.</param>
+    private void StartTimestamp_TextBox_TextChanged(object sender, EventArgs e)
     {
       TextBox tb = sender as TextBox;
       if (! tb.Text.All(char.IsDigit))
       {
+        // Get the caret position and set it after we concat. (Yes I know it bugs out when selecting, but using Windows forms doesn't work that well).
         int carretPos = tb.SelectionStart;
         tb.Text = string.Concat(tb.Text.Where(char.IsDigit));
         tb.SelectionStart = carretPos - 1;
@@ -291,17 +454,28 @@ namespace Discord_RPC_Client
       }
       else
       {
+        // So if all the characters are Digits then set the config value.
         Invoke((MethodInvoker)delegate
         {
-          ulong startTimestamp_Test = ConfigHandler.config.Information.StartTimestamp;
+          // We need to make sure the string is still able to become a UInt64 so we try to parse it.
+          // If it fails we just set the default.
+          ulong startTimestamp_Test = ConfigHandler.config.GetInformation().StartTimestamp;
           ulong.TryParse(startTimestamp_TextBox.Text, out startTimestamp_Test);
-          ConfigHandler.SetValue(ref ConfigHandler.config.Information.StartTimestamp, startTimestamp_Test);
+          ConfigHandler.SetValue(ref ConfigHandler.config.GetInformation().StartTimestamp, startTimestamp_Test);
         });
       }
     }
 
-    private void endTimestamp_TextBox_TextChanged(object sender, EventArgs e)
+    /// <summary>
+    /// Get if the <see cref="endTimestamp_TextBox"/> changed.
+    /// Makes sure all text in the <see cref="TextBox"/> are digits.
+    /// Also sets the <see cref="Config.Information.EndTimestamp"/> value.
+    /// </summary>
+    /// <param name="sender">The sending object (Typically a <see cref="TextBox"/>).</param>
+    /// <param name="e">The event arguments.</param>
+    private void EndTimestamp_TextBox_TextChanged(object sender, EventArgs e)
     {
+      // Get the caret position and set it after we concat. (Yes I know it bugs out when selecting, but using Windows forms doesn't work that well).
       TextBox tb = sender as TextBox;
       if (!tb.Text.All(char.IsDigit))
       {
@@ -312,85 +486,107 @@ namespace Discord_RPC_Client
       }
       else
       {
+        // So if all the characters are Digits then set the config value.
         Invoke((MethodInvoker)delegate
         {
-          ulong endTimestamp_Test = ConfigHandler.config.Information.EndTimestamp;
+          // We need to make sure the string is still able to become a UInt64 so we try to parse it.
+          // If it fails we just set the default.
+          ulong endTimestamp_Test = ConfigHandler.config.GetInformation().EndTimestamp;
           ulong.TryParse(endTimestamp_TextBox.Text, out endTimestamp_Test);
-          ConfigHandler.SetValue(ref ConfigHandler.config.Information.EndTimestamp, endTimestamp_Test);
+          ConfigHandler.SetValue(ref ConfigHandler.config.GetInformation().EndTimestamp, endTimestamp_Test);
         });
       }
     }
 
-    private void largeImage_TextBox_TextChanged(object sender, EventArgs e)
+    /// <summary>
+    /// Get if the <see cref="largeImage_TextBox"/> changed.
+    /// Doesn't do anything special other than set the <see cref="Config.Information.LargeImage"/> value.
+    /// </summary>
+    /// <param name="sender">The sending object (Typically a <see cref="TextBox"/>).</param>
+    /// <param name="e">The event arguments.</param>
+    private void LargeImage_TextBox_TextChanged(object sender, EventArgs e) => Invoke((MethodInvoker)delegate
     {
-      Invoke((MethodInvoker)delegate
-      {
-        ConfigHandler.SetValue(ref ConfigHandler.config.Images.LargeImage, largeImage_TextBox.Text);
-      });
-    }
+      ConfigHandler.SetValue(ref ConfigHandler.config.GetImages().LargeImage, largeImage_TextBox.Text);
+    });
 
-    private void largeImageTooltip_TextBox_TextChanged(object sender, EventArgs e)
+    /// <summary>
+    /// Get if the <see cref="largeImageTooltip_TextBox"/> changed.
+    /// Doesn't do anything special other than set the <see cref="Config.Information.LargeImageTooltip"/> value.
+    /// </summary>
+    /// <param name="sender">The sending object (Typically a <see cref="TextBox"/>).</param>
+    /// <param name="e">The event arguments.</param>
+    private void LargeImageTooltip_TextBox_TextChanged(object sender, EventArgs e) => Invoke((MethodInvoker)delegate
     {
-      Invoke((MethodInvoker)delegate
-      {
-        ConfigHandler.SetValue(ref ConfigHandler.config.Images.LargeImageTooltip, largeImageTooltip_TextBox.Text);
-      });
-    }
+      ConfigHandler.SetValue(ref ConfigHandler.config.GetImages().LargeImageTooltip, largeImageTooltip_TextBox.Text);
+    });
 
-    private void smallImage_TextBox_TextChanged(object sender, EventArgs e)
+    /// <summary>
+    /// Get if the <see cref="smallImage_TextBox"/> changed.
+    /// Doesn't do anything special other than set the <see cref="Config.Information.SmallImage"/> value.
+    /// </summary>
+    /// <param name="sender">The sending object (Typically a <see cref="TextBox"/>).</param>
+    /// <param name="e">The event arguments.</param>
+    private void SmallImage_TextBox_TextChanged(object sender, EventArgs e) => Invoke((MethodInvoker)delegate
     {
-      Invoke((MethodInvoker)delegate
-      {
-        ConfigHandler.SetValue(ref ConfigHandler.config.Images.SmallImage, smallImage_TextBox.Text);
-      });
-    }
+      ConfigHandler.SetValue(ref ConfigHandler.config.GetImages().SmallImage, smallImage_TextBox.Text);
+    });
 
-    private void smallImageTooltip_TextBox_TextChanged(object sender, EventArgs e)
+    /// <summary>
+    /// Get if the <see cref="smallImageTooltip_TextBox"/> changed.
+    /// Doesn't do anything special other than set the <see cref="Config.Information.SmallImageTooltip"/> value.
+    /// </summary>
+    /// <param name="sender">The sending object (Typically a <see cref="TextBox"/>).</param>
+    /// <param name="e">The event arguments.</param>
+    private void SmallImageTooltip_TextBox_TextChanged(object sender, EventArgs e) => Invoke((MethodInvoker)delegate
     {
-      Invoke((MethodInvoker)delegate
-      {
-        ConfigHandler.SetValue(ref ConfigHandler.config.Images.SmallImageTooltip, smallImageTooltip_TextBox.Text);
-      });
-    }
+      ConfigHandler.SetValue(ref ConfigHandler.config.GetImages().SmallImageTooltip, smallImageTooltip_TextBox.Text);
+    });
 
-    private void forceUpdate_Button_Click(object sender, EventArgs e)
+    /// <summary>
+    /// Forces the <see cref="RPC"/> client to update.
+    /// </summary>
+    /// <param name="sender">The sending object (Typically a <see cref="Button"/>).</param>
+    /// <param name="e">The event arguments.</param>
+    private void ForceUpdate_Button_Click(object sender, EventArgs e) => Invoke((MethodInvoker)delegate
     {
-      Invoke((MethodInvoker)delegate
-      {
-        App.logger.Log("Updating RPC");
-        App.rpc.Update();
-      });
-    }
+      App.UpdateRPC();
+    });
 
-    private void saveConfig_Button_Click(object sender, EventArgs e)
+    /// <summary>
+    /// Forces the <see cref="ConfigHandler"/> to save the <see cref="Config"/> to file.
+    /// </summary>
+    /// <param name="sender">The sending object (Typically a <see cref="Button"/>).</param>
+    /// <param name="e">The event arguments.</param>
+    private void SaveConfig_Button_Click(object sender, EventArgs e) => Invoke((MethodInvoker)delegate
     {
-      Invoke((MethodInvoker)delegate
-      {
-        ConfigHandler.WriteConfig();
-      });
-    }
+      ConfigHandler.WriteConfig();
+    });
 
-    private void loadConfig_Button_Click(object sender, EventArgs e)
-    {
-      Invoke((MethodInvoker)delegate
-      {
-        ConfigHandler.ReadConfig();
-        clientID_TextBox.Text = ConfigHandler.config.Identifiers.ClientID;
-        details_TextBox.Text = ConfigHandler.config.Information.Details;
-        state_TextBox.Text = ConfigHandler.config.Information.State;
-        startTimestamp_TextBox.Text = ConfigHandler.config.Information.StartTimestamp.ToString();
-        endTimestamp_TextBox.Text = ConfigHandler.config.Information.EndTimestamp.ToString();
-        largeImage_TextBox.Text = ConfigHandler.config.Images.LargeImage;
-        largeImageTooltip_TextBox.Text = ConfigHandler.config.Images.LargeImageTooltip;
-        smallImage_TextBox.Text = ConfigHandler.config.Images.SmallImage;
-        smallImageTooltip_TextBox.Text = ConfigHandler.config.Images.SmallImageTooltip;
-      });
-    }
+    /// <summary>
+    /// Forces the <see cref="ConfigHandler"/> to load the <see cref="Config"/> from file.
+    /// </summary>
+    /// <param name="sender">The sending object (Typically a <see cref="Button"/>).</param>
+    /// <param name="e">The event arguments.</param>
+    private void LoadConfig_Button_Click(object sender, EventArgs e) => Invoke((MethodInvoker)delegate { ConfigHandler.ReadConfig(); });
 
-    private void exit_Button_Click(object sender, EventArgs e)
+    public void UpdateTextBoxes() => Invoke((MethodInvoker)delegate
     {
-      exit = true;
-      Close();
-    }
+      clientID_TextBox.Text = ConfigHandler.config.GetIdentifiers().ClientID;
+      details_TextBox.Text = ConfigHandler.config.GetInformation().Details;
+      state_TextBox.Text = ConfigHandler.config.GetInformation().State;
+      startTimestamp_TextBox.Text = ConfigHandler.config.GetInformation().StartTimestamp.ToString();
+      endTimestamp_TextBox.Text = ConfigHandler.config.GetInformation().EndTimestamp.ToString();
+      largeImage_TextBox.Text = ConfigHandler.config.GetImages().LargeImage;
+      largeImageTooltip_TextBox.Text = ConfigHandler.config.GetImages().LargeImageTooltip;
+      smallImage_TextBox.Text = ConfigHandler.config.GetImages().SmallImage;
+      smallImageTooltip_TextBox.Text = ConfigHandler.config.GetImages().SmallImageTooltip;
+    });
+
+    /// <summary>
+    /// Closes the <see cref="GUI"/>.
+    /// </summary>
+    /// <param name="sender">The sending object (Typically a <see cref="Button"/>).</param>
+    /// <param name="e">The event arguments.</param>
+    private void Exit_Button_Click(object sender, EventArgs e) => Close();
   }
 }
